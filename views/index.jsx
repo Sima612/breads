@@ -23,9 +23,6 @@ function Index({breads}) {
             <div className='newButton'>
                 <a href="/breads/new"><button>Add a new Bread</button></a>
             </div>
-            <div className='backButton'>
-                <a href="/breads"><button>Go back to Index Page</button></a>
-            </div>
 
         </Default>
     )
