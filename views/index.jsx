@@ -2,24 +2,31 @@
 const React = require('react')
 const Default = require('./layouts/default')
 
-function Index(breads) {
+function Index({breads}) {
     return (
         <Default>
             <h2>Index Page</h2>
-            {/*<p>I have {breads[0].name} bread!</p>*/}
-                <ul>
-                    {
-                        breads.map((bread, index) => {
-                            return (
-                                <li key={index}>
-                                    <a href={`/breads/${index}`}>
-                                        {bread.name}
-                                    </a>
-                                </li>
-                            )
-                        })
-                    }
-                </ul>
+            <ul>
+                {
+                    breads.map((bread, index) => {
+                        return (
+                            <li key={index}>
+                                <a href={`/breads/${index}`}>
+                                    {bread.name}
+                                </a>
+                            </li>
+                        )
+                    })
+                }
+            </ul>
+            {/* ADDING NAVIGATION */}
+            <div className='newButton'>
+                <a href="/breads/new"><button>Add a new Bread</button></a>
+            </div>
+            <div className='backButton'>
+                <a href="/breads"><button>Go back to Index Page</button></a>
+            </div>
+
         </Default>
     )
 }

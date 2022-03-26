@@ -1,5 +1,10 @@
 body {
+    text-align: center;
     background-color: floralwhite;
+}
+
+a {
+    text-decoration: none;
 }
 
 img {
