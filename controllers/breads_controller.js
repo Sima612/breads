@@ -6,12 +6,18 @@ const Baker = require('../models/baker.js')
 
 // Index
 breads.get('/', (req, res) => {
-    Bread.find()
-    .then(foundBread => {
-        res.render('index', {
-            breads: foundBread,
-        })
+    Baker.find()
+    .then(foundBakers => {
+        Bread.find()
+        .then(foundBread => {
+            res.render('index', {
+                breads: foundBread,
+                bakers: foundBakers,
+                title: 'Index Page'
+            })
+        })    
     })
+    
 })
 
 // CREATING NEW POST ROUTE; to take in our form data and add data to database

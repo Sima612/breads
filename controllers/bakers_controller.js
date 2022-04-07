@@ -9,4 +9,24 @@ baker.get('/data/seed', (req, res) => {
     .then(() => {res.redirect('/breads')})
 })
 
+// INDEX ROUTE
+baker.get('/', (req, res) => {
+    Baker.find()
+    .populate('breads') // REF VIRTUAL SCHEMA
+    .then(foundBakers => {
+        res.send(foundBakers)
+    })
+})
+
+// SHOW ROUTE
+baker.get('/:id', (req, res) => {
+    Baker.findById(req.params.id)
+    .populate('breads')
+    .then(foundBaker => {
+        res.render('bakerShow', {
+            baker: foundBaker
+        })
+    })
+})
+
 module.exports = baker
