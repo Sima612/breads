@@ -1,59 +1,113 @@
+// DEPENDENCIES
 const express = require('express')
 const breads = express.Router()
 const Bread = require('../models/bread.js')
+const Baker = require('../models/baker.js')
 
 // Index
 breads.get('/', (req, res) => {
-    res.render('index', {breads: Bread})
-    res.send(Bread)
+    Bread.find()
+    .then(foundBread => {
+        res.render('index', {
+            breads: foundBread,
+        })
+    })
 })
 
 // CREATING NEW POST ROUTE; to take in our form data and add data to database
 breads.post('/', (req, res) => {
-    if(!req.body.image) {req.body.image = 'https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80'}
+    if(!req.body.image) { req.body.image = undefined }
     if(req.body.hasGluten === 'on') {req.body.hasGluten === 'true'}
     else {req.body.hasGluten === 'false'}
-    Bread.push(req.body)
+    Bread.create(req.body)
     res.redirect('/breads')
 })
 
 // NEW BREAD
 breads.get('/new', (req, res) => {
-    res.render('new')
+    Baker.find()
+    .then(foundBakers => {
+        res.render('new', {
+            bakers: foundBakers
+        })    
+    })
+    
 })
 
-// DELETE BREAD
-breads.delete('/:indexArray', (req, res) => {
-    Bread.splice(req.params.indexArray, 1)
-    res.status(303).redirect('/breads')
+// CREATE MULTIPLE BREADS
+breads.get('/data/seed', (req, res) => {
+    Bread.insertMany([
+        {
+          name: 'Rye',
+          hasGluten: true,
+          image: 'https://images.unsplash.com/photo-1595535873420-a599195b3f4a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+        },
+        {
+          name: 'French',
+          hasGluten: true,
+          image: 'https://images.unsplash.com/photo-1534620808146-d33bb39128b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+        },
+        {
+          name: 'Gluten Free',
+          hasGluten: false,
+          image: 'https://images.unsplash.com/photo-1546538490-0fe0a8eba4e6?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1050&q=80',
+        },
+        {
+          name: 'Pumpernickel',
+          hasGluten: true,
+          image: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1050&q=80',
+        }
+      ])
+      .then(createdBreads => {res.redirect('/breads')})
 })
 
 // EDIT BREAD
-breads.get('/:indexArray/edit', (req, res) => {
-    res.render('edit', {
-        bread: Bread[req.params.indexArray],
-        index: req.params.indexArray
+breads.get('/:id/edit', (req, res) => {
+    Baker.find()
+    .then(foundBakers => {
+        Bread.findById(req.params.id)
+        .then(foundBread => {
+            res.render('edit', {
+                bread: foundBread,
+                bakers: foundBakers
+            })
+        })    
+    })
+    
+})
+
+// SHOW ROUTE
+breads.get('/:id', (req, res) => {
+    Bread.findById(req.params.id)
+    .populate('baker') 
+    .then(foundBread => {
+        const bakedBy = foundBread.getBakedBy()
+        
+        {res.render('show', {
+            bread: foundBread
+        })}
+    })
+    .catch(err => {
+        res.render('error404')
     })
 })
 
-// SHOW
-breads.get('/:arrayIndex', (req, res) => {
-    if (Bread[req.params.arrayIndex]) {
-        res.render('Show', {
-            bread: Bread[req.params.arrayIndex],
-            index: req.params.arrayIndex
-        })
-    }   else {
-        res.render('error404')
-    }
-})
-
 // UPDATE ROUTE
-breads.put('/:arrayIndex', (req, res) => {
+breads.put('/:id', (req, res) => {
     if(req.body.hasGluten === 'on') {req.body.hasGluten = true}
     else {req.body.hasGluten = false}
-    Bread[req.params.arrayIndex] = req.body
-    res.redirect(`/breads/${req.params.arrayIndex}`)
+    
+    Bread.findByIdAndUpdate(req.params.id, req.body, {new: true})
+        .then(updatedBread => {
+            console.log(updatedBread)
+            res.redirect(`/breads/${req.params.id}`)
+    })
+})
+
+// DELETE BREAD
+breads.delete('/:id', (req, res) => {
+    Bread.findByIdAndDelete(req.params.id)
+    .then(deletedBread => {res.status(303).redirect('/breads')})
 })
 
 module.exports = breads

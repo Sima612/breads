@@ -7,6 +7,7 @@ function error404() {
             <main>
                 <img src="/images/breadError404.jpeg" alt="Bread Error404"/>
             </main>
+            
         </Default>
     )
 }
